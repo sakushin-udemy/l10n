@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +36,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  final String name = 'Sato';
+  final String gender = 'female';
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -52,8 +56,25 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              AppLocalizations.of(context).message,
+              AppLocalizations.of(context).hello('test'),
             ),
+            Text(
+              AppLocalizations.of(context).message(_counter),
+            ),
+            Text(
+              Intl.plural(
+                _counter,
+                zero: AppLocalizations.of(context).noPush,
+                one: AppLocalizations.of(context).onePush,
+                other: AppLocalizations.of(context).message(_counter),
+              ),
+            ),
+            Text(Intl.gender(
+              gender,
+              male: 'Mr. $name pushed.',
+              female: 'Ms. $name pushed.',
+              other: 'They pushed.',
+            )),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
