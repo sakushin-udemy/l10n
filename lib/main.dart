@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+StateProvider<Locale> _localeProvider =
+    StateProvider((ref) => AppLocalizations.supportedLocales.first);
+StateProvider<int> _countProvider = StateProvider((ref) => 0);
+StateProvider<String> _langCodeProvider = StateProvider(
+    (ref) => AppLocalizations.supportedLocales.first.languageCode);
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends ConsumerWidget {
+  MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Flutter Demo',
       localizationsDelegates: AppLocalizations.localizationsDelegates, // 追加
@@ -18,35 +25,31 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      locale: ref.watch(_localeProvider),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class MyHomePage extends ConsumerWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  final countLocales = AppLocalizations.supportedLocales.length;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool isAppBarShown = Localizations.of<MaterialLocalizations>(
+            context, MaterialLocalizations) !=
+        null;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).title),
-      ),
+      appBar: isAppBarShown
+          ? AppBar(
+              title: Text(AppLocalizations.of(context).title),
+            )
+          : null,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -55,14 +58,26 @@ class _MyHomePageState extends State<MyHomePage> {
               AppLocalizations.of(context).message,
             ),
             Text(
-              '$_counter',
+              '${ref.watch(_countProvider)}',
               style: Theme.of(context).textTheme.headline4,
+            ),
+            Text(
+              '${ref.watch(_langCodeProvider)}',
+              style: Theme.of(context).textTheme.headline5,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {
+          ref.read(_countProvider.notifier).state++;
+
+          Locale currentLocale = AppLocalizations
+              .supportedLocales[ref.read(_countProvider) % countLocales];
+          ref.read(_localeProvider.notifier).update((state) => currentLocale);
+          ref.read(_langCodeProvider.notifier).update((state) =>
+              '${currentLocale.languageCode}-${currentLocale.countryCode ?? ''}');
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
