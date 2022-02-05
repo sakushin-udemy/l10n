@@ -1,0 +1,26 @@
+{
+    "@@locale":"en",
+    "title":"Flutter Demo Home Page",
+
+    "hello":"hello, {name}",
+    "@hello":{
+          "placeholders": {
+              "name": {
+                 "type":"String",
+                 "description":"name"
+              }
+         }
+     },
+
+    "message": "You have pushed the button {count} times",
+    "@message": {
+         "placeholders": {
+             "count": {
+                "type":"int",
+                "description":"counter"
+             }
+        }
+    },
+    "noPush": "You have not pushed the button",
+    "onePush": "You have pushed the button once"
+}
