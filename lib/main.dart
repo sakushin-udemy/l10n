@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:l10n/flutter_support_language.dart';
 
 StateProvider<Locale> _localeProvider =
     StateProvider((ref) => AppLocalizations.supportedLocales.first);
 StateProvider<int> _countProvider = StateProvider((ref) => 0);
 StateProvider<String> _langCodeProvider = StateProvider(
     (ref) => AppLocalizations.supportedLocales.first.languageCode);
+Provider<bool> _showAppBarProvider = Provider((ref) => ref.watch(_localeProvider
+    .select((value) => flutterSupportLanguage.contains(value.toString()))));
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -45,7 +48,7 @@ class MyHomePage extends ConsumerWidget {
         null;
 
     return Scaffold(
-      appBar: isAppBarShown
+      appBar: ref.watch(_showAppBarProvider)
           ? AppBar(
               title: Text(AppLocalizations.of(context).title),
             )
